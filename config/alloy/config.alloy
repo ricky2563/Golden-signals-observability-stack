@@ -1,0 +1,32 @@
+local.file_match "api_logs" {
+  path_targets = [{"__path__" = "/var/log/api/*.log", "job" = "golden_signals_api"}]
+}
+
+loki.source.file "api" {
+  targets    = local.file_match.api_logs.targets
+  forward_to = [loki.process.api.receiver]
+}
+
+loki.process "api" {
+  stage.json {
+    expressions = {
+      level    = "level",
+      endpoint = "endpoint",
+    }
+  }
+
+  stage.labels {
+    values = {
+      level    = "",
+      endpoint = "",
+    }
+  }
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

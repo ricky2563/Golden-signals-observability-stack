@@ -1,0 +1,18 @@
+groups:
+  - name: golden_signals_recording
+    interval: 15s
+    rules:
+      - record: job:app_error_rate:ratio
+        expr: |
+          sum(rate(app_requests_total{status="error", endpoint="unstable"}[2m])) 
+          / 
+          sum(rate(app_requests_total{endpoint="unstable"}[2m]))
+
+      - record: job:app_request_rate:sum
+        expr: sum(rate(app_requests_total[1m]))
+
+      - record: job:app_latency_p95:by_endpoint
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(app_request_duration_seconds_bucket[2m])) by (le, endpoint)
+          )

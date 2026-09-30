@@ -1,0 +1,28 @@
+groups:
+  - name: golden_signals_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(app_requests_total{status="error", endpoint="unstable"}[2m])) 
+            / 
+            sum(rate(app_requests_total{endpoint="unstable"}[2m]))
+          ) > 0.20
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taxa de erros elevada no endpoint unstable"
+          description: "Mais de 10% dos pedidos ao /api/unstable estao a falhar nos ultimos 2 minutos."
+
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(app_request_duration_seconds_bucket{endpoint="fast"}[2m])) by (le)
+          ) > 0.5
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latencia elevada no endpoint /api/fast"
+          description: "95% dos pedidos rapidos estao a demorar mais de 0.5s, o que nao e normal."
