@@ -4,7 +4,7 @@ A small, fully working observability setup built around the **four golden signal
 
 A test API generates realistic traffic (including deliberate failures), and the stack monitors it end to end.
 
-![Dashboard](docs/dashboard.png)
+![Dashboard](docs/dashboard.PNG)
 
 ## Architecture
 
